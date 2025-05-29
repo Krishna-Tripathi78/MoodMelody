@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoodMelody</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='splash.css') }}">
+</head>
+<body>
+    <div id="splash-screen">
+        <div class="splash-content">
+            <h1 class="splash-title">MoodMelody</h1>
+            <div class="splash-loader">
+                <div class="splash-bar"></div>
+                <div class="splash-bar"></div>
+                <div class="splash-bar"></div>
+                <div class="splash-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        setTimeout(function() {
+            window.location.href = "{{ url_for('main_app') }}";
+        }, 2000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoodMelody | AI-Powered Music Recommendations</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/styles.css">
+    <link rel="stylesheet" type="text/css" href="/static/enhanced-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<div class="app-wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-music"></i>
+                <h1>MoodMelody</h1>
+            </div>
+            <p class="tagline">AI-Powered Music Recommendations</p>
+        </div>
+        
+        <div class="mood-display">
+            <h3>Current Mood</h3>
+            <div class="mood-indicator">
+                <span id="mood-emoji">😐</span>
+                <span id="mood-value">Neutral</span>
+            </div>
+            <div class="mood-progress">
+                <div class="mood-progress-bar" style="width: 0%"></div>
+            </div>
+        </div>
+        
+        <div class="sidebar-section">
+            <h3>About</h3>
+            <p>MoodMelody analyzes your emotions through conversation and recommends music that matches your mood.</p>
+        </div>
+        
+        <div class="sidebar-section">
+            <h3>How It Works</h3>
+            <ol>
+                <li><i class="fas fa-comment-dots"></i> Share how you're feeling</li>
+                <li><i class="fas fa-brain"></i> AI analyzes your emotions</li>
+                <li><i class="fas fa-headphones"></i> Get personalized music recommendations</li>
+            </ol>
+        </div>
+        
+        <div class="mood-history">
+            <h3>Recent Moods</h3>
+            <div class="mood-chips" id="mood-history-chips">
+            </div>
+        </div>
+        
+        <div class="sidebar-footer">
+            <p>Powered by OPEN AI</p>
+            <div class="tech-icons">
+                <i class="fab fa-spotify"></i>
+                <i class="fas fa-brain"></i>
+                <i class="fas fa-code"></i>
+            </div>
+        </div>
+    </aside>
+    
+    <main class="main-content">
+        <header class="main-header">
+            <div class="header-left">
+                <button id="mobile-menu-toggle" class="mobile-menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2>Chat with MoodMelody</h2>
+            </div>
+            <div class="header-right">
+                <div class="theme-toggle" title="Toggle Dark Mode">
+                    <i class="fas fa-moon"></i>
+                </div>
+                <button id="clear-chat" class="clear-chat" title="Clear Chat">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+        </header>
+        
+        <div class="chat-container">
+            <div id="chatbox">
+                <div class="message bot-message animate__animated animate__fadeIn">
+                    <div class="avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-bubble">
+                        <div class="message-content">
+                            <p>Hi! I'm MoodMelody. Tell me how you're feeling or what's on your mind, and I'll recommend music that matches your mood!</p>
+                        </div>
+                        <div class="message-time">Just now</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <div class="input-container">
+                    <input id="textInput" type="text" placeholder="Type your message here...">
+                    <div class="input-actions">
+                        <button id="voice-input" title="Voice Input">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <button id="buttonInput">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+                <button id="getson" class="music-btn">
+                    <i class="fas fa-headphones-alt"></i>
+                    <span>Get Music</span>
+                </button>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div id="playlist-modal" class="hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-container animate__animated animate__fadeInUp">
+        <div class="modal-header">
+            <h3>Your Mood Playlist</h3>
+            <button id="close-playlist">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-content">
+            <div class="playlist-info">
+                <div class="playlist-mood">
+                    <span id="playlist-mood-emoji">🎵</span>
+                    <div class="playlist-mood-details">
+                        <h4 id="playlist-mood-text">Loading...</h4>
+                        <p class="playlist-description">Music selected based on your emotional state.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="playlist-tracks">
+                <h4>Featured Tracks</h4>
+                <div class="track-list" id="track-list">
+                    <div class="track-item skeleton-loader"></div>
+                    <div class="track-item skeleton-loader"></div>
+                    <div class="track-item skeleton-loader"></div>
+                </div>
+            </div>
+            <div class="spotify-preview">
+                <div class="spotify-logo">
+                    <i class="fab fa-spotify"></i>
+                </div>
+                <a id="spotify-link" href="#" target="_blank" class="spotify-btn">
+                    Open in Spotify
+                </a>
+            </div>
+            <div class="share-playlist">
+                <p>Share this playlist:</p>
+                <div class="share-buttons">
+                    <button class="share-btn" data-platform="facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </button>
+                    <button class="share-btn" data-platform="twitter">
+                        <i class="fab fa-twitter"></i>
+                    </button>
+                    <button class="share-btn" data-platform="whatsapp">
+                        <i class="fab fa-whatsapp"></i>
+                    </button>
+                    <button class="share-btn" id="copy-link">
+                        <i class="fas fa-link"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="feedback-modal" class="hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-container animate__animated animate__fadeInUp">
+        <div class="modal-header">
+            <h3>How was your experience?</h3>
+            <button id="close-feedback">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-content">
+            <p>Did the music recommendations match your mood?</p>
+            <div class="rating-container">
+                <div class="rating">
+                    <i class="far fa-star" data-rating="1"></i>
+                    <i class="far fa-star" data-rating="2"></i>
+                    <i class="far fa-star" data-rating="3"></i>
+                    <i class="far fa-star" data-rating="4"></i>
+                    <i class="far fa-star" data-rating="5"></i>
+                </div>
+            </div>
+            <div class="feedback-form">
+                <textarea id="feedback-text" placeholder="Any additional feedback? (optional)"></textarea>
+                <button id="submit-feedback" class="submit-btn">Submit Feedback</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="toast hidden">
+    <div class="toast-content">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message">Success message here</span>
+    </div>
+</div>
+
+<script>
+    let moodHistory = [];
+    
+    const emotionEmojis = {
+        "ecstatic": "🤩",
+        "happy": "😊",
+        "calm": "😌",
+        "neutral": "😐",
+        "relaxed": "😌",
+        "melancholic": "😔",
+        "sad": "😢",
+        "devastated": "😭",
+        "motivated": "💪",
+        "romantic": "❤️",
+        "nostalgic": "🕰️",
+        "energetic": "⚡",
+        "focused": "🧠",
+        "angry": "😠",
+        "peaceful": "🧘",
+        "festive": "🎉",
+        "love": "💕"
+    };
+    
+    const moodColors = {
+        "ecstatic": "#FFD700",
+        "happy": "#FFA500",
+        "calm": "#4682B4",
+        "neutral": "#808080",
+        "relaxed": "#6495ED",
+        "melancholic": "#9370DB",
+        "sad": "#6A5ACD",
+        "devastated": "#483D8B",
+        "motivated": "#FF4500",
+        "romantic": "#FF69B4",
+        "nostalgic": "#DDA0DD",
+        "energetic": "#FF6347",
+        "focused": "#20B2AA",
+        "angry": "#DC143C",
+        "peaceful": "#87CEEB",
+        "festive": "#FF1493",
+        "love": "#FF69B4"
+    };
+    
+    function formatTime() {
+        const now = new Date();
+        return now.getHours().toString().padStart(2, '0') + ":" + 
+               now.getMinutes().toString().padStart(2, '0');
+    }
+    
+    function showToast(message, type = 'success') {
+        const toast = $("#toast");
+        const toastMessage = $("#toast-message");
+        
+        toastMessage.text(message);
+        toast.removeClass("success error");
+        toast.addClass(type);
+        
+        toast.removeClass("hidden");
+        
+        setTimeout(() => {
+            toast.addClass("hidden");
+        }, 3000);
+    }
+    
+    function getBotResponse() {
+        var rawText = $("#textInput").val();
+        if (rawText.trim() === "") return;
+        
+        var userHtml = `
+            <div class="message user-message animate__animated animate__fadeIn">
+                <div class="avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="message-bubble">
+                    <div class="message-content">
+                        <p>${rawText}</p>
+                    </div>
+                    <div class="message-time">${formatTime()}</div>
+                </div>
+            </div>
+        `;
+        
+        $("#textInput").val("");
+        $("#chatbox").append(userHtml);
+        $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
+        
+        var typingHtml = `
+            <div id="typing-indicator" class="message bot-message typing animate__animated animate__fadeIn">
+                <div class="avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-bubble">
+                    <div class="message-content">
+                        <div class="typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        $("#chatbox").append(typingHtml);
+        $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
+        
+        $.get("/get", { msg: rawText }).done(function(data) {
+            $("#typing-indicator").remove();
+            
+            let formattedResponse = data.response.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+            
+            var botHtml = `
+                <div class="message bot-message animate__animated animate__fadeIn">
+                    <div class="avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-bubble">
+                        <div class="message-content">
+                            <p>${formattedResponse}</p>
+                        </div>
+                        <div class="message-time">${formatTime()}</div>
+                    </div>
+                </div>
+            `;
+            
+            $("#chatbox").append(botHtml);
+            $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
+            
+            if (data.emotion) {
+                updateMoodDisplay(data.emotion);
+            }
+        }).fail(function() {
+            $("#typing-indicator").remove();
+            
+            var errorHtml = `
+                <div class="message bot-message animate__animated animate__fadeIn">
+                    <div class="avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-bubble">
+                        <div class="message-content">
+                            <p>Sorry, I'm having trouble responding right now. Please try again later.</p>
+                        </div>
+                        <div class="message-time">${formatTime()}</div>
+                    </div>
+                </div>
+            `;
+            
+            $("#chatbox").append(errorHtml);
+            $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
+        });
+    }
+    
+    function updateMoodDisplay(emotion) {
+        const formattedEmotion = emotion.charAt(0).toUpperCase() + emotion.slice(1);
+        $("#mood-value").text(formattedEmotion);
+        $("#mood-emoji").text(emotionEmojis[emotion] || "😐");
+        
+        const moodColor = moodColors[emotion] || "#808080";
+        $(".mood-progress-bar").css({
+            "background-color": moodColor,
+            "width": "100%"
+        });
+        
+        $(".mood-indicator").addClass("pulse");
+        setTimeout(() => {
+            $(".mood-indicator").removeClass("pulse");
+        }, 1000);
+        
+        addMoodToHistory(emotion);
+    }
+    
+    function addMoodToHistory(emotion) {
+        if (moodHistory.length >= 5) {
+            moodHistory.shift();
+        }
+        
+        moodHistory.push(emotion);
+        
+        updateMoodHistoryDisplay();
+    }
+    
+    function updateMoodHistoryDisplay() {
+        const moodHistoryContainer = $("#mood-history-chips");
+        moodHistoryContainer.empty();
+        
+        moodHistory.slice().reverse().forEach(emotion => {
+            const emoji = emotionEmojis[emotion] || "😐";
+            const color = moodColors[emotion] || "#808080";
+            const formattedEmotion = emotion.charAt(0).toUpperCase() + emotion.slice(1);
+            
+            const moodChip = `
+                <div class="mood-chip" style="background-color: ${color}20; color: ${color}">
+                    <span class="mood-chip-emoji">${emoji}</span>
+                    <span class="mood-chip-text">${formattedEmotion}</span>
+                </div>
+            `;
+            
+            moodHistoryContainer.append(moodChip);
+        });
+    }
+    
+    $("#getson").click(function() {
+        var lastMessage = "";
+        $(".user-message").each(function() {
+            lastMessage = $(this).find("p").text();
+        });
+        
+        if (lastMessage === "") {
+            lastMessage = "I'm feeling neutral";
+        }
+        
+        $("#getson").html('<i class="fas fa-spinner fa-spin"></i> <span>Loading...</span>');
+        
+        $.ajax({
+            url: "/forward/",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ msg: lastMessage }),
+            success: function(data) {
+                $("#getson").html('<i class="fas fa-headphones-alt"></i> <span>Get Music</span>');
+                
+                $("#playlist-mood-text").text(data.emotion.charAt(0).toUpperCase() + data.emotion.slice(1));
+                $("#playlist-mood-emoji").text(emotionEmojis[data.emotion] || "🎵");
+                $("#spotify-link").attr("href", data.playlist_url);
+                
+                populateTrackList(data);
+                
+                $("#playlist-modal").removeClass("hidden");
+                
+                setTimeout(() => {
+                    if (!$("#feedback-modal").hasClass("hidden")) return;
+                    $("#playlist-modal").addClass("hidden");
+                    $("#feedback-modal").removeClass("hidden");
+                }, 30000);
+            },
+            error: function() {
+                $("#getson").html('<i class="fas fa-headphones-alt"></i> <span>Get Music</span>');
+                showToast("Sorry, couldn't fetch music recommendations right now.", "error");
+            }
+        });
+    });
+    
+    function populateTrackList(data) {
+        const trackList = $("#track-list");
+        trackList.empty();
+        
+        if (data.tracks && data.tracks.length > 0) {
+            data.tracks.slice(0, 5).forEach((track, index) => {
+                const trackItem = `
+                    <div class="track-item">
+                        <div class="track-number">${index + 1}</div>
+                        <div class="track-info">
+                            <div class="track-title">${track.name || 'Unknown Track'}</div>
+                            <div class="track-artist">${track.artist || 'Unknown Artist'}</div>
+                        </div>
+                        <div class="track-play">
+                            <a href="${track.preview_url || '#'}" target="_blank" class="track-play-btn">
+                                <i class="fas fa-play"></i>
+                            </a>
+                        </div>
+                    </div>
+                `;
+                trackList.append(trackItem);
+            });
+        } else {
+            trackList.html('<p class="no-tracks">Track information not available. Open in Spotify to see the full playlist.</p>');
+        }
+    }
+    
+    $("#close-playlist, .modal-overlay").click(function() {
+        $("#playlist-modal").addClass("hidden");
+    });
+    
+    $("#close-feedback, .modal-overlay").click(function() {
+        $("#feedback-modal").addClass("hidden");
+    });
+    
+    $(".rating i").click(function() {
+        const rating = $(this).data("rating");
+        
+        $(".rating i").removeClass("fas").addClass("far");
+        
+        $(".rating i").each(function() {
+            if ($(this).data("rating") <= rating) {
+                $(this).removeClass("far").addClass("fas");
+            }
+        });
+    });
+    
+    $("#submit-feedback").click(function() {
+        const rating = $(".rating .fas").length;
+        const feedback = $("#feedback-text").val();
+        
+        console.log("Rating:", rating, "Feedback:", feedback);
+        
+        showToast("Thank you for your feedback!");
+        
+        $("#feedback-modal").addClass("hidden");
+    });
+    
+    $(".share-btn").click(function() {
+        const platform = $(this).data("platform");
+        const playlistUrl = $("#spotify-link").attr("href");
+        const shareText = "Check out this mood-based playlist from MoodMelody!";
+        
+        let shareUrl = "";
+        
+        switch(platform) {
+            case "facebook":
+                shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(playlistUrl)}`;
+                break;
+            case "twitter":
+                shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(playlistUrl)}`;
+                break;
+            case "whatsapp":
+                shareUrl = `https://wa.me/?text=${encodeURIComponent(shareText + " " + playlistUrl)}`;
+                break;
+            default:
+                break;
+        }
+        
+        if (shareUrl) {
+            window.open(shareUrl, "_blank");
+        }
+    });
+    
+    $("#copy-link").click(function() {
+        const playlistUrl = $("#spotify-link").attr("href");
+        
+        const tempInput = document.createElement("input");
+        tempInput.value = playlistUrl;
+        document.body.appendChild(tempInput);
+        
+        tempInput.select();
+        document.execCommand("copy");
+        
+        document.body.removeChild(tempInput);
+        
+        showToast("Link copied to clipboard!");
+    });
+    
+    $("#mobile-menu-toggle").click(function() {
+        $(".sidebar").toggleClass("show-mobile");
+        $(this).find("i").toggleClass("fa-bars fa-times");
+    });
+    
+    $("#clear-chat").click(function() {
+        if (confirm("Are you sure you want to clear the chat history?")) {
+            $("#chatbox").html(`
+                <div class="message bot-message animate__animated animate__fadeIn">
+                    <div class="avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-bubble">
+                        <div class="message-content">
+                            <p>Hi! I'm MoodMelody. Tell me how you're feeling or what's on your mind, and I'll recommend music that matches your mood!</p>
+                        </div>
+                        <div class="message-time">Just now</div>
+                    </div>
+                </div>
+            `);
+            
+            $("#mood-value").text("Neutral");
+            $("#mood-emoji").text("😐");
+            $(".mood-progress-bar").css({
+                "background-color": "#808080",
+                "width": "0%"
+            });
+            
+            moodHistory = [];
+            updateMoodHistoryDisplay();
+            
+            showToast("Chat history cleared!");
+        }
+    });
+    
+    $("#voice-input").click(function() {
+        showToast("Voice input feature coming soon!");
+    });
+    
+    $(".theme-toggle").click(function() {
+        $("body").toggleClass("dark-theme");
+        $(".theme-toggle i").toggleClass("fa-moon fa-sun");
+    });
+    
+    $("#textInput").keypress(function(e) {
+        if (e.which == 13) {
+            getBotResponse();
+        }
+    });
+    
+    $("#buttonInput").click(function() {
+        getBotResponse();
+    });
+</script>
+</body>
+</html>
